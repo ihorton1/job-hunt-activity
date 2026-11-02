@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'">
+  <title>Job Hunt | Completion activity</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">A little, often.</p>
+      <h1>Job Hunt activity</h1>
+      <p class="intro">Small steps towards the next chapter. A calendar of completed goals, tasks and sub-tasks.</p>
+    </header>
+    <p id="status" role="status">Loading completion activity...</p>
+    <section id="dashboard" hidden>
+      <div class="toolbar">
+        <label>Year <select id="year"></select></label>
+        <span id="refreshed"></span>
+      </div>
+      <div id="calendars"></div>
+    </section>
+    <template id="calendar-template">
+      <section class="panel">
+        <div class="panel-heading">
+          <div><h2 class="calendar-title"></h2><p class="totals"></p></div>
+          <p class="timezone">Dates in Europe/London</p>
+        </div>
+        <div class="calendar-scroll">
+          <div class="months" aria-hidden="true"></div>
+          <div class="calendar-row">
+            <div class="weekdays" aria-hidden="true"><span>Mon</span><span>Wed</span><span>Fri</span></div>
+            <div class="calendar"></div>
+          </div>
+        </div>
+        <div class="legend"><span>Fewer</span><i data-level="0"></i><i data-level="1"></i><i data-level="2"></i><i data-level="3"></i><i data-level="4"></i><span>More completions</span></div>
+      </section>
+    </template>
+    <noscript>This dashboard requires JavaScript to display its static activity snapshot.</noscript>
+  </main>
+</body>
+</html>

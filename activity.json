@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "generatedAt": "2026-11-05T11:23:49.374Z",
+  "generatedAt": "2026-11-05T11:25:34.861Z",
   "timeZone": "Europe/London",
   "days": [
     {
@@ -21,6 +21,10 @@
     },
     {
       "date": "2026-11-04",
+      "count": 1
+    },
+    {
+      "date": "2026-11-05",
       "count": 1
     }
   ],
@@ -84,7 +88,12 @@
     {
       "number": 55,
       "title": "Read Data Algorithms with Spark to deepen Spark performance reasoning",
-      "days": []
+      "days": [
+        {
+          "date": "2026-11-05",
+          "count": 1
+        }
+      ]
     },
     {
       "number": 57,

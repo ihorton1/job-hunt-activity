@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "generatedAt": "2026-11-11T15:25:13.089Z",
+  "generatedAt": "2026-11-11T15:27:13.765Z",
   "timeZone": "Europe/London",
   "days": [
     {
@@ -37,7 +37,7 @@
     },
     {
       "date": "2026-11-11",
-      "count": 1
+      "count": 2
     }
   ],
   "goals": [
@@ -127,6 +127,10 @@
         },
         {
           "date": "2026-11-09",
+          "count": 1
+        },
+        {
+          "date": "2026-11-11",
           "count": 1
         }
       ]

@@ -41,11 +41,13 @@ export function buildSnapshot(rawIssues, generatedAt = new Date().toISOString())
       title: raw.title,
       parent: raw.parent?.number ?? null,
       isGoal: raw.labels.nodes.some(label => label.name === "goal"),
+      isHidden: raw.labels.nodes.some(label => label.name === "dashboard-hidden"),
       completedOn,
     });
   }
   const issues = [...byNumber.values()].filter(issue => {
     const lineage = ancestors(issue, byNumber);
+    if (issue.isHidden || lineage.some(number => byNumber.get(number).isHidden)) return false;
     return issue.isGoal || lineage.some(number => byNumber.get(number).isGoal);
   }).sort((a, b) => a.number - b.number);
   const goalIssues = issues.filter(issue => issue.isGoal);

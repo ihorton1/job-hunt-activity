@@ -81,6 +81,47 @@ test("includes goals with no completions without exposing their tasks", () => {
   assert.doesNotMatch(JSON.stringify(snapshot), /Issue 2/);
 });
 
+test("excludes hidden goals and their entire subtree from the public snapshot", () => {
+  for (const parent of [null, { number: 1 }]) {
+    const snapshot = buildSnapshot([
+      goal,
+      issue(57, {
+        title: "Hidden goal",
+        parent,
+        labels: { nodes: [{ name: "goal" }, { name: "dashboard-hidden" }] },
+        ...done,
+      }),
+      issue(58, { parent: { number: 57 }, ...done }),
+      issue(59, {
+        title: "Nested hidden goal",
+        parent: { number: 58 },
+        labels: { nodes: [{ name: "goal" }] },
+        ...done,
+      }),
+      issue(60, { parent: { number: 59 }, ...done }),
+      issue(2, { parent: { number: 1 }, ...done }),
+    ]);
+    assert.deepEqual(snapshot.goals.map(entry => entry.number), [1]);
+    assert.deepEqual(snapshot.days, [{ date: "2026-11-02", count: 1 }]);
+    assert.deepEqual(snapshot.goals[0].days, snapshot.days);
+    assert.doesNotMatch(JSON.stringify(snapshot), /Hidden goal|Nested hidden goal|dashboard-hidden/);
+  }
+});
+
+test("excludes hidden non-goal branches while retaining their visible goal", () => {
+  const snapshot = buildSnapshot([
+    ...raw,
+    issue(7, {
+      parent: { number: 1 },
+      labels: { nodes: [{ name: "dashboard-hidden" }] },
+      ...done,
+    }),
+    issue(8, { parent: { number: 7 }, ...done }),
+  ]);
+  assert.deepEqual(snapshot.days, buildSnapshot(raw).days);
+  assert.deepEqual(snapshot.goals, buildSnapshot(raw).goals);
+});
+
 test("orders goals by selected-year completions, with stable issue-number ties and no mutation", () => {
   const snapshot = { goals: [
     { number: 9, days: [{ date: "2025-01-01", count: 10 }] },

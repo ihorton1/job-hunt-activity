@@ -17,6 +17,11 @@ and reopened issues do not. Parent closures count as separate milestones.
 Each issue counts once in the All goals total, including with nested goals.
 Ties in goal ranking use issue number.
 
+Label an issue `dashboard-hidden` to exclude it and its entire descendant subtree
+from the public snapshot, including goal calendars and All goals totals. A hidden
+goal can keep its `goal` label for private tracking. Descendant goals are hidden
+too, even when nested beneath a visible goal.
+
 These are completion dates, not work-session dates. Reopening an issue removes
 its contribution until it is completed again. Historical migrations and
 retrospective updates appear on their GitHub closure dates.

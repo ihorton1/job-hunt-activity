@@ -10,6 +10,7 @@ const files = new Map([
   ["/styles.css", ["styles.css", "text/css"]],
   ["/app.mjs", ["app.mjs", "text/javascript"]],
   ["/model.mjs", ["model.mjs", "text/javascript"]],
+  ["/theme.js", ["theme.js", "text/javascript"]],
   ["/activity.json", ["activity.json", "application/json"]],
 ]);
 const server = createServer(async (request, response) => {

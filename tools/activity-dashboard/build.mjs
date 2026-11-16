@@ -59,7 +59,7 @@ export async function build({ repository, token, output, request = fetch }) {
   const snapshot = buildSnapshot(await fetchIssues(repository, token, request));
   if (snapshot.goals.length === 0) throw new Error("No goal-labelled issues found");
   await mkdir(output, { recursive: true });
-  for (const file of ["index.html", "styles.css", "app.mjs", "model.mjs"]) {
+  for (const file of ["index.html", "styles.css", "app.mjs", "model.mjs", "theme.js"]) {
     await copyFile(join(directory, file), join(output, file));
   }
   await writeFile(join(output, "activity.json"), `${JSON.stringify(snapshot, null, 2)}\n`);

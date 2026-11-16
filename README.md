@@ -10,6 +10,8 @@ A small, dependency-free static dashboard of GitHub issue completions.
 - Goal sections ranked by completions in the selected year.
 - Daily green boxes, completion counts and active-day counts.
 - London-time dates, year selection and responsive horizontal calendars.
+- A dark-mode toggle that defaults to your system theme and remembers your choice
+  in this browser.
 
 Issues labelled `goal` define the goals. Their descendants contribute to the
 daily totals. Only issues currently closed as **completed** count; not-planned
@@ -68,5 +70,5 @@ rather than publishing misleading empty activity. Titles are rendered as text,
 not HTML. There are no third-party assets, analytics, write controls or database.
 
 The test suite covers aggregation, privacy boundaries, cancelled/reopened
-issues, nested goals, London dates, leap years, ranking, pagination and failures.
+issues, nested goals, London dates, leap years, ranking, pagination, themes and failures.
 Pull requests run the tests without fetching private issue data.

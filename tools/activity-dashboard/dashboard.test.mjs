@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { runInNewContext } from "node:vm";
 import { ancestors, buildSnapshot, calendarDays, dayInLondon, orderGoals, summarize } from "./model.mjs";
 import { build, fetchIssues } from "./build.mjs";
 
@@ -198,7 +199,7 @@ test("build output contains only static assets and sanitized snapshot, never cre
       request: async () => page(raw),
     });
     assert.deepEqual((await readdir(output)).sort(), [
-      ".nojekyll", "activity.json", "app.mjs", "index.html", "model.mjs", "styles.css",
+      ".nojekyll", "activity.json", "app.mjs", "index.html", "model.mjs", "styles.css", "theme.js",
     ]);
     for (const file of await readdir(output)) {
       assert.doesNotMatch(await readFile(join(output, file), "utf8"), /secret-test-token/);
@@ -216,4 +217,94 @@ test("build output contains only static assets and sanitized snapshot, never cre
   } finally {
     await rm(output, { recursive: true });
   }
+});
+
+const themeSource = await readFile(new URL("./theme.js", import.meta.url), "utf8");
+
+function themePage({ saved = null, dark = false, readError = false, writeError = false } = {}) {
+  const listeners = {};
+  const attributes = {};
+  const warnings = [];
+  const button = {
+    hidden: true,
+    setAttribute: (name, value) => { attributes[name] = value; },
+    addEventListener: (name, listener) => { listeners[name] = listener; },
+  };
+  const status = { hidden: true };
+  const root = { dataset: {} };
+  const system = {
+    matches: dark,
+    addEventListener: (name, listener) => { listeners.systemChange = listener; },
+  };
+  const storage = new Map(saved === null ? [] : [["activity-dashboard-theme", saved]]);
+  runInNewContext(themeSource, {
+    document: {
+      documentElement: root,
+      getElementById: id => listeners.ready
+        ? ({ "theme-toggle": button, "theme-status": status })[id] : null,
+      addEventListener: (name, listener) => { listeners.ready = listener; },
+    },
+    matchMedia: () => system,
+    localStorage: {
+      getItem: key => {
+        if (readError) throw new Error("Storage blocked");
+        return storage.get(key) ?? null;
+      },
+      setItem: (key, value) => {
+        if (writeError) throw new Error("Storage full");
+        storage.set(key, value);
+      },
+    },
+    console: { warn: (...args) => warnings.push(args) },
+  });
+  const initialTheme = root.dataset.theme;
+  listeners.ready();
+  return { root, button, status, attributes, warnings, storage, listeners, system, initialTheme };
+}
+
+test("theme follows the system before rendering and until explicitly toggled", () => {
+  for (const dark of [false, true]) {
+    const page = themePage({ dark });
+    assert.equal(page.initialTheme, dark ? "dark" : "light");
+    assert.equal(page.button.hidden, false);
+    assert.equal(page.attributes["aria-pressed"], String(dark));
+    page.system.matches = !dark;
+    page.listeners.systemChange();
+    assert.equal(page.root.dataset.theme, dark ? "light" : "dark");
+    page.listeners.click();
+    assert.equal(page.root.dataset.theme, dark ? "dark" : "light");
+    assert.equal(page.attributes["aria-pressed"], String(dark));
+    assert.equal(page.button.textContent, `Dark mode: ${dark ? "on" : "off"}`);
+    page.system.matches = !dark;
+    page.listeners.systemChange();
+    assert.equal(page.root.dataset.theme, dark ? "dark" : "light");
+  }
+});
+
+test("saved theme overrides system preference and persists both toggle directions", () => {
+  for (const saved of ["light", "dark"]) {
+    const page = themePage({ saved, dark: saved === "light" });
+    assert.equal(page.initialTheme, saved);
+    page.listeners.click();
+    const next = saved === "dark" ? "light" : "dark";
+    assert.equal(page.storage.get("activity-dashboard-theme"), next);
+    assert.equal(themePage({ saved: next }).initialTheme, next);
+    page.listeners.click();
+    assert.equal(page.storage.get("activity-dashboard-theme"), saved);
+  }
+  assert.equal(themePage({ saved: "invalid", dark: true }).initialTheme, "dark");
+});
+
+test("storage failures are reported without preventing theme changes", () => {
+  const page = themePage({ readError: true, writeError: true });
+  assert.equal(page.status.hidden, false);
+  assert.match(page.status.textContent, /cannot be saved/);
+  assert.equal(page.warnings.length, 1);
+  page.listeners.click();
+  assert.equal(page.root.dataset.theme, "dark");
+  assert.equal(page.warnings.length, 2);
+  const writeOnly = themePage({ writeError: true });
+  assert.equal(writeOnly.status.hidden, true);
+  writeOnly.listeners.click();
+  assert.equal(writeOnly.status.hidden, false);
 });

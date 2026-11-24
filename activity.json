@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "generatedAt": "2026-11-24T14:44:16.955Z",
+  "generatedAt": "2026-11-24T14:46:55.959Z",
   "timeZone": "Europe/London",
   "days": [
     {
@@ -238,6 +238,11 @@
     {
       "number": 110,
       "title": "AI learning queue",
+      "days": []
+    },
+    {
+      "number": 118,
+      "title": "Complete SQL Practice Problems to strengthen SQL querying",
       "days": []
     }
   ]

@@ -35,11 +35,11 @@ test("publishes only aggregate activity and goal names, not grouping tasks", () 
   const snapshot = buildSnapshot(raw.map(i => ({
     ...i, body: "PRIVATE EMAIL", comments: ["PRIVATE CONTACT"], url: "PRIVATE URL",
   })));
-  assert.equal(snapshot.version, 3);
+  assert.equal(snapshot.version, 4);
   assert.deepEqual(Object.keys(snapshot).sort(), ["days", "generatedAt", "goals", "timeZone", "version"]);
   assert.deepEqual(snapshot.goals.map(i => i.number), [1]);
   for (const published of snapshot.goals) {
-    assert.deepEqual(Object.keys(published).sort(), ["days", "number", "title"]);
+    assert.deepEqual(Object.keys(published).sort(), ["completed", "days", "number", "title"]);
     for (const day of published.days) assert.deepEqual(Object.keys(day).sort(), ["count", "date"]);
   }
   for (const day of snapshot.days) assert.deepEqual(Object.keys(day).sort(), ["count", "date"]);
@@ -80,6 +80,21 @@ test("includes goals with no completions without exposing their tasks", () => {
   assert.deepEqual(snapshot.goals[0].days, []);
   assert.equal(summarize(snapshot, 1, 2026).activeDays, 0);
   assert.doesNotMatch(JSON.stringify(snapshot), /Issue 2/);
+});
+
+test("goal completion follows the goal issue, not descendants, cancellation or past closure", () => {
+  for (const [overrides, completed] of [
+    [{}, false],
+    [done, true],
+    [{ ...done, stateReason: "NOT_PLANNED" }, false],
+    [{ ...done, state: "OPEN", stateReason: null }, false],
+  ]) {
+    const snapshot = buildSnapshot([
+      { ...goal, ...overrides },
+      issue(2, { parent: { number: 1 }, ...done }),
+    ]);
+    assert.equal(snapshot.goals[0].completed, completed);
+  }
 });
 
 test("excludes hidden goals and their entire subtree from the public snapshot", () => {
@@ -125,16 +140,29 @@ test("excludes hidden non-goal branches while retaining their visible goal", () 
 
 test("orders goals by selected-year completions, with stable issue-number ties and no mutation", () => {
   const snapshot = { goals: [
-    { number: 9, days: [{ date: "2025-01-01", count: 10 }] },
-    { number: 4, days: [{ date: "2026-01-01", count: 1 }, { date: "2026-01-02", count: 1 }] },
-    { number: 2, days: [{ date: "2026-01-01", count: 2 }] },
-    { number: 1, days: [] },
-    { number: 6, days: [{ date: "2026-01-01", count: 3 }] },
+    { number: 9, completed: false, days: [{ date: "2025-01-01", count: 10 }] },
+    { number: 4, completed: false, days: [{ date: "2026-01-01", count: 1 }, { date: "2026-01-02", count: 1 }] },
+    { number: 2, completed: false, days: [{ date: "2026-01-01", count: 2 }] },
+    { number: 1, completed: false, days: [] },
+    { number: 6, completed: false, days: [{ date: "2026-01-01", count: 3 }] },
   ] };
   assert.deepEqual(orderGoals(snapshot, 2026).map(goal => goal.number), [6, 2, 4, 1, 9]);
   assert.deepEqual(orderGoals(snapshot, 2025).map(goal => goal.number), [9, 1, 2, 4, 6]);
   assert.deepEqual(orderGoals(snapshot, 2024).map(goal => goal.number), [1, 2, 4, 6, 9]);
   assert.deepEqual(snapshot.goals.map(goal => goal.number), [9, 4, 2, 1, 6]);
+});
+
+test("completed goals sort last in every year, retaining ranking and ties within each group", () => {
+  const snapshot = buildSnapshot([
+    goal,
+    issue(2, { labels: { nodes: [{ name: "goal" }] }, ...done }),
+    issue(3, { labels: { nodes: [{ name: "goal" }] }, ...done }),
+    issue(4, { parent: { number: 3 }, ...done }),
+    issue(5, { labels: { nodes: [{ name: "goal" }] } }),
+  ]);
+  assert.deepEqual(orderGoals(snapshot, 2026).map(goal => goal.number), [1, 5, 3, 2]);
+  assert.deepEqual(orderGoals(snapshot, 2025).map(goal => goal.number), [1, 5, 2, 3]);
+  assert.deepEqual(snapshot.goals.map(goal => goal.number), [1, 2, 3, 5]);
 });
 
 test("respects London time, DST, and year boundaries", () => {

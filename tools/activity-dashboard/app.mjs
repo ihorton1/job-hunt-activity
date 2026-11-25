@@ -2,6 +2,7 @@ import { calendarDays, dayInLondon, orderGoals, summarize } from "./model.mjs";
 
 const get = id => document.getElementById(id);
 let snapshot;
+const expandedGoals = new Set();
 
 function renderCalendar(panel, goal, year) {
   const title = goal === null ? "All goals" : goal.title;
@@ -53,6 +54,28 @@ function render() {
     const panel = get("calendar-template").content.firstElementChild.cloneNode(true);
     container.append(panel);
     renderCalendar(panel, goal, year);
+    if (goal?.completed) {
+      const details = document.createElement("details");
+      details.open = expandedGoals.has(goal.number);
+      const summary = document.createElement("summary");
+      summary.className = "goal-summary";
+      const checkmark = document.createElement("span");
+      checkmark.className = "goal-completed";
+      checkmark.textContent = "\u2713 Completed";
+      panel.querySelector(".calendar-title").append(" ", checkmark);
+      summary.append(panel.querySelector(".panel-heading"));
+      details.append(summary, ...panel.children);
+      panel.append(details);
+      details.addEventListener("toggle", () => {
+        if (details.open) {
+          expandedGoals.add(goal.number);
+          const scroll = details.querySelector(".calendar-scroll");
+          scroll.scrollLeft = scroll.scrollWidth;
+        } else {
+          expandedGoals.delete(goal.number);
+        }
+      });
+    }
   }
 }
 
@@ -60,8 +83,9 @@ try {
   const response = await fetch("./activity.json", { cache: "no-store" });
   if (!response.ok) throw new Error(`Snapshot request failed (HTTP ${response.status})`);
   snapshot = await response.json();
-  if (snapshot.version !== 3 || snapshot.timeZone !== "Europe/London"
+  if (snapshot.version !== 4 || snapshot.timeZone !== "Europe/London"
     || !Array.isArray(snapshot.goals) || !Array.isArray(snapshot.days)
+    || snapshot.goals.some(goal => typeof goal.completed !== "boolean")
     || !Number.isFinite(new Date(snapshot.generatedAt).getTime())) {
     throw new Error("Unsupported or invalid activity snapshot");
   }

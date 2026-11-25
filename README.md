@@ -7,7 +7,9 @@ A small, dependency-free static dashboard of GitHub issue completions.
 ## What it shows
 
 - An All goals calendar, followed by one calendar per goal.
-- Goal sections ranked by completions in the selected year.
+- Active goals first, ranked by completions in the selected year.
+- Completed goals at the bottom, collapsed with a checkmark. Select the caret
+  or heading to expand their calendars.
 - Daily green boxes, completion counts and active-day counts.
 - London-time dates, year selection and responsive horizontal calendars.
 - A dark-mode toggle that defaults to your system theme and remembers your choice
@@ -17,7 +19,10 @@ Issues labelled `goal` define the goals. Their descendants contribute to the
 daily totals. Only issues currently closed as **completed** count; not-planned
 and reopened issues do not. Parent closures count as separate milestones.
 Each issue counts once in the All goals total, including with nested goals.
-Ties in goal ranking use issue number.
+Goals are completed only when the goal issue itself is closed as completed,
+not just its descendants. Within active and completed groups, goals are ranked
+by selected-year completions, with issue-number ties. Expanded completed goals
+stay expanded when changing years, until the page is reloaded.
 
 Label an issue `dashboard-hidden` to exclude it and its entire descendant subtree
 from the public snapshot, including goal calendars and All goals totals. A hidden
@@ -30,7 +35,7 @@ retrospective updates appear on their GitHub closure dates.
 
 ## Public data boundary
 
-The generated snapshot contains only goal numbers and names, daily aggregate
+The generated snapshot contains only goal numbers, names and completion flags, daily aggregate
 counts, a schema version, refresh time and time zone. It contains no task or
 sub-task titles, individual completion records, issue bodies, comments,
 contact details or credentials.
@@ -70,5 +75,6 @@ rather than publishing misleading empty activity. Titles are rendered as text,
 not HTML. There are no third-party assets, analytics, write controls or database.
 
 The test suite covers aggregation, privacy boundaries, cancelled/reopened
-issues, nested goals, London dates, leap years, ranking, pagination, themes and failures.
+issues, goal completion status, nested goals, London dates, leap years, ranking,
+pagination, themes and failures.
 Pull requests run the tests without fetching private issue data.

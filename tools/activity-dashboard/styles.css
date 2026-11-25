@@ -30,6 +30,15 @@ select { max-width: min(570px, 85vw); padding-right: 34px; }
 #refreshed { margin-left: auto; font-size: .75rem; color: var(--secondary); padding-bottom: 12px; }
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 26px; margin-bottom: 22px; box-shadow: 0 4px 18px var(--shadow); }
 .panel-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.goal-summary { display: flex; align-items: baseline; gap: 12px; cursor: pointer; list-style: none; }
+.goal-summary::-webkit-details-marker { display: none; }
+.goal-summary::before { content: ""; flex-shrink: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 7px solid var(--accent); }
+details[open] > .goal-summary::before { transform: rotate(90deg); }
+.goal-summary .panel-heading { flex: 1; min-width: 0; }
+.goal-completed { color: var(--accent); font-size: .8rem; font-weight: 650; white-space: nowrap; }
+details[open] .goal-completed { display: none; }
+details:not([open]) .calendar-title, details:not([open]) .timezone { margin-bottom: 0; }
+details:not([open]) .totals { display: none; }
 h2 { font-size: 1.05rem; margin: 0 0 8px; }
 .totals, .timezone { color: var(--secondary); font-size: .8rem; }
 .timezone { white-space: nowrap; }

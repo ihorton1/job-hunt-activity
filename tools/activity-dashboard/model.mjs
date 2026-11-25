@@ -63,11 +63,12 @@ export function buildSnapshot(rawIssues, generatedAt = new Date().toISOString())
   const goals = goalIssues.map(issue => ({
     number: issue.number,
     title: issue.title,
+    completed: issue.completedOn !== null,
     days: aggregate(completions.filter(entry => entry.number === issue.number
       || ancestors(entry, byNumber).includes(issue.number))),
   }));
   return {
-    version: 3,
+    version: 4,
     generatedAt: new Date(generatedAt).toISOString(),
     timeZone: TIME_ZONE,
     days: aggregate(completions),
@@ -101,6 +102,7 @@ export function summarize(snapshot, goal, year) {
 export function orderGoals(snapshot, year) {
   return snapshot.goals
     .map(goal => ({ goal, count: summarize(snapshot, goal.number, year).count }))
-    .sort((a, b) => b.count - a.count || a.goal.number - b.goal.number)
+    .sort((a, b) => Number(a.goal.completed) - Number(b.goal.completed)
+      || b.count - a.count || a.goal.number - b.goal.number)
     .map(entry => entry.goal);
 }

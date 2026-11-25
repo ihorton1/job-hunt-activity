@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "generatedAt": "2026-11-25T12:13:33.545Z",
+  "version": 4,
+  "generatedAt": "2026-11-25T12:24:13.336Z",
   "timeZone": "Europe/London",
   "days": [
     {
@@ -84,6 +84,7 @@
     {
       "number": 1,
       "title": "Clarify my next role and target industries",
+      "completed": false,
       "days": [
         {
           "date": "2026-10-19",
@@ -106,6 +107,7 @@
     {
       "number": 6,
       "title": "Prepare 8–10 interview-ready SOARS stories and question-specific variations",
+      "completed": false,
       "days": [
         {
           "date": "2026-11-02",
@@ -116,6 +118,7 @@
     {
       "number": 11,
       "title": "Prepare for system design interviews using Hello Interview",
+      "completed": false,
       "days": [
         {
           "date": "2026-11-02",
@@ -146,6 +149,7 @@
     {
       "number": 24,
       "title": "Build coding-interview fluency through regular LeetCode practice",
+      "completed": false,
       "days": [
         {
           "date": "2026-11-03",
@@ -204,6 +208,7 @@
     {
       "number": 55,
       "title": "Read Data Algorithms with Spark to deepen Spark performance reasoning",
+      "completed": true,
       "days": [
         {
           "date": "2026-11-05",
@@ -246,11 +251,13 @@
     {
       "number": 110,
       "title": "AI learning queue",
+      "completed": false,
       "days": []
     },
     {
       "number": 118,
       "title": "Complete SQL Practice Problems to strengthen SQL querying",
+      "completed": false,
       "days": [
         {
           "date": "2026-11-24",
